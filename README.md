@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# MacroTracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite + TypeScript app for tracking daily macros.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install dependencies:
+   - `npm install`
+2. Copy `.env.example` to `.env` and set:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+3. Start dev server:
+   - `npm run dev`
 
-## React Compiler
+## Supabase schema (today-only daily log)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Run this SQL in your Supabase SQL editor:
 
-## Expanding the ESLint configuration
+```sql
+create table if not exists public.daily_log_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  logged_on date not null default current_date,
+  food_id text not null,
+  food_name text not null,
+  weight_grams numeric not null,
+  calories numeric not null,
+  protein numeric not null,
+  carbs numeric not null,
+  fat numeric not null,
+  created_at timestamptz not null default now()
+);
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+create index if not exists daily_log_entries_user_date_idx
+  on public.daily_log_entries (user_id, logged_on);
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Row level security (RLS)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```sql
+alter table public.daily_log_entries enable row level security;
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+create policy "select_own_daily_logs"
+on public.daily_log_entries
+for select
+using (auth.uid() = user_id);
+
+create policy "insert_own_daily_logs"
+on public.daily_log_entries
+for insert
+with check (auth.uid() = user_id);
+
+create policy "delete_own_daily_logs"
+on public.daily_log_entries
+for delete
+using (auth.uid() = user_id);
 ```
+
+## Auth
+
+The app uses Supabase email/password auth:
+- Sign up with email/password.
+- Sign in to load and save today’s entries.

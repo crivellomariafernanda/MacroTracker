@@ -4,12 +4,14 @@ type NutritionResultsProps = {
   macros: CalculatedMacros | null
   canAddToLog: boolean
   onAddToLog: () => void
+  buttonText: string
 }
 
 export function NutritionResults({
   macros,
   canAddToLog,
   onAddToLog,
+  buttonText,
 }: NutritionResultsProps) {
   return (
     <div className="card">
@@ -40,7 +42,7 @@ export function NutritionResults({
         disabled={!canAddToLog}
         onClick={onAddToLog}
       >
-        ➕ Anadir al Registro
+        {buttonText}
       </button>
     </div>
   )

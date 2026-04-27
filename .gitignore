@@ -29,6 +29,11 @@ coverage
 # Local overrides
 *.local
 
+# Supabase local/CLI state
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

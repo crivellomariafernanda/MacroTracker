@@ -9,6 +9,7 @@ type FoodSelectorProps = {
   onSelectFood: (food: FoodItem) => void
   onClear: () => void
   onOpenDropdown: () => void
+  onEnterSelect: () => void
 }
 
 export function FoodSelector({
@@ -20,6 +21,7 @@ export function FoodSelector({
   onSelectFood,
   onClear,
   onOpenDropdown,
+  onEnterSelect,
 }: FoodSelectorProps) {
   return (
     <div className="card">
@@ -35,6 +37,12 @@ export function FoodSelector({
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             onFocus={onOpenDropdown}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                onEnterSelect()
+              }
+            }}
           />
           <button
             className={`clear-search-btn ${query ? 'visible' : ''}`}

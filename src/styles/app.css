@@ -425,3 +425,33 @@ body {
   margin-top: 8px;
   font-size: 0.85rem;
 }
+
+.auth-card .card-header {
+  margin-bottom: 8px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.auth-error {
+  margin-top: 8px;
+  color: #b91c1c;
+  font-size: 0.82rem;
+}
