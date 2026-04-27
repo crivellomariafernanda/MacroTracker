@@ -24,7 +24,7 @@ export type CalculatedMacros = {
 }
 
 export type LogEntry = {
-  id: number
+  id: string
   foodId: string
   foodName: string
   weightGrams: number
